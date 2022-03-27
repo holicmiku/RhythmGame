@@ -2,17 +2,20 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<time.h>
-#include<conio.h>
+#include<conio.h> //_getch,_kbhit
 
 #include<memory.h> //memset
 #include<windows.h>//system 관련 함수
 #include<mmsystem.h> //playsound 보조
 #include "resource.h"
 
-#define z 14
-#define x 20
-#define c 26
-#define v 32
+//실제 스테이지에서 출력하는 노트의 위치들 gotoxy의 좌표값.
+#define z 13 //version 1.0.1 14->13
+#define x 18 //version 1.0.1 20->18
+#define c 23 //version 1.0.1 26->23
+#define v 28 //version 1.0.1 32->28
+
+
 #define X1 12
 #define left 75
 #define right 77
@@ -87,7 +90,7 @@ void bmp_draw()  //비트맵 출력 api함수
 		while (1) {
 
 			hdc = GetDC(hWnd);
-			DrawBitmap(hdc, 500, 200, hBit);
+			DrawBitmap(hdc, 1000, 1000, hBit);
 			ReleaseDC(hWnd, hdc);
 			Sleep(1);
 			break;
@@ -302,12 +305,12 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 		}
 		else if (next_step == 2 && wait == 65)
 		{
-			gotoxy(18, 7);  printf("┏━━━━━━━━━━━━━┓┏━━━━━━━━━━━━━━━━━━┓");
-			gotoxy(18, 8);  printf("┃     ＫＥＹＢＯＡＲＤ     ┃┃           ＫＥＹＢＯＡＲＤ         ┃");
-			gotoxy(18, 9);  printf("┃ ┏━┓┏━┓┏━┓┏━┓ ┃┃ ┏━┓ ┏━━━━━┓ ┏━┓┏━┓ ┃");
-			gotoxy(18, 10); printf("┃ ┃Ｚ┃┃Ｘ┃┃Ｃ┃┃Ｖ┃ ┃┃ ┃F1┃ ┃ＥＮＴＥＲ┃ ┃←┃┃→┃ ┃");
-			gotoxy(18, 11); printf("┃ ┗━┛┗━┛┗━┛┗━┛ ┃┃ ┗━┛ ┗━━━━━┛ ┗━┛┗━┛ ┃");
-			gotoxy(18, 12); printf("┗━━━━━━━━━━━━━┛┗━━━━━━━━━━━━━━━━━━┛");
+			gotoxy(18, 7);  printf("┏━━━━━━━━━━━━━━━━┓┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+			gotoxy(18, 8);  printf("┃ＫＥＹＢＯＡＲＤ┃┃      ＫＥＹＢＯＡＲＤ     ┃");
+			gotoxy(18, 9);  printf("┃┏━━┓┏━━┓┏━━┓┏━━┓┃┃ ┏━━┓ ┏━━━━━━━━━━┓ ┏━━┓┏━━┓┃");
+			gotoxy(18, 10); printf("┃┃Ｚ┃┃Ｘ┃┃Ｃ┃┃Ｖ┃┃┃ ┃F1┃ ┃ＥＮＴＥＲ┃ ┃←┃┃→┃┃");
+			gotoxy(18, 11); printf("┃┗━━┛┗━━┛┗━━┛┗━━┛┃┃ ┗━━┛ ┗━━━━━━━━━━┛ ┗━━┛┗━━┛┃");
+			gotoxy(18, 12); printf("┗━━━━━━━━━━━━━━━━┛┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
 		}
 		else if (next_step == 2 && wait == 80)
 		{
@@ -373,13 +376,12 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 		}
 		else if (next_step == 4 && wait == 185)
 		{
-
 			gotoxy(66, 2);  printf("┃@@@@┃@@@@┃@@@@┃@@@@┃");
 			gotoxy(66, 3);  printf("┃    ┃    ┃    ┃    ┃");
 			gotoxy(66, 4);  printf("┃    ┃    ┃    ┃    ┃");
 			gotoxy(66, 5);  printf("┃    ┃    ┃    ┃    ┃");
-			gotoxy(66, 6);  printf("┃    ┃    ┃    ┃    ┣┓");
-			gotoxy(66, 7);  printf("┃    ┃    ┃    ┃    ┃┗┓");
+			gotoxy(66, 6);  printf("┃    ┃    ┃    ┃    ┣━┓");
+			gotoxy(66, 7);  printf("┃    ┃    ┃    ┃    ┃ ┗┓");
 			gotoxy(66, 8);  printf("┃    ┃    ┃    ┃    ┃**┃");
 			gotoxy(66, 9);  printf("┃    ┃    ┃    ┃    ┃**┃");
 			gotoxy(66, 10); printf("┃    ┃    ┃    ┃    ┃**┃");
@@ -395,13 +397,12 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 			gotoxy(66, 20); printf("┃    ┃    ┃    ┃    ┃**┃");
 			gotoxy(66, 21); printf("┃    ┃    ┃    ┃    ┃**┃");
 			gotoxy(66, 22); printf("┃    ┃    ┃    ┃    ┃**┃");
-			gotoxy(66, 23); printf("┣━━╋━━╋━━╋━━╋━┛");
+			gotoxy(66, 23); printf("┣━━━━╋━━━━╋━━━━╋━━━━╋━━┛");
 			gotoxy(66, 24); printf("┃    ┃    ┃    ┃    ┃");
 			gotoxy(66, 25); printf("┃    ┃    ┃    ┃    ┃");
 			gotoxy(66, 26); printf("┃ Ｚ ┃ Ｘ ┃ Ｃ ┃ Ｖ ┃");
 			gotoxy(66, 27); printf("┃    ┃    ┃    ┃    ┃");
 			gotoxy(66, 28); printf("┃    ┃    ┃    ┃    ┃");
-
 
 		}
 		else if (next_step == 4 && wait == 200)
@@ -469,8 +470,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 			gotoxy(66, 3);  printf("┃    ┃    ┃    ┃    ┃");
 			gotoxy(66, 4);  printf("┃    ┃    ┃    ┃    ┃");
 			gotoxy(66, 5);  printf("┃    ┃    ┃    ┃    ┃");
-			gotoxy(66, 6);  printf("┃    ┃    ┃    ┃    ┣┓");
-			gotoxy(66, 7);  printf("┃    ┃    ┃    ┃    ┃┗┓");
+			gotoxy(66, 6);  printf("┃    ┃    ┃    ┃    ┣━┓");
+			gotoxy(66, 7);  printf("┃    ┃    ┃    ┃    ┃ ┗┓");
 			gotoxy(66, 8);  printf("┃    ┃    ┃    ┃    ┃**┃");
 			gotoxy(66, 9);  printf("┃    ┃    ┃    ┃    ┃**┃");
 			gotoxy(66, 10); printf("┃    ┃    ┃    ┃    ┃**┃");
@@ -486,7 +487,7 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 			gotoxy(66, 20); printf("┃    ┃    ┃    ┃    ┃**┃");
 			gotoxy(66, 21); printf("┃    ┃    ┃    ┃    ┃**┃");
 			gotoxy(66, 22); printf("┃    ┃    ┃    ┃    ┃**┃");
-			gotoxy(66, 23); printf("┣━━╋━━╋━━╋━━╋━┛");
+			gotoxy(66, 23); printf("┣━━━━╋━━━━╋━━━━╋━━━━╋━━┛");
 			gotoxy(66, 24); printf("┃    ┃    ┃    ┃    ┃");
 			gotoxy(66, 25); printf("┃    ┃    ┃    ┃    ┃");
 			gotoxy(66, 26); printf("┃ Ｚ ┃ Ｘ ┃ Ｃ ┃ Ｖ ┃");
@@ -560,8 +561,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 			gotoxy(26, 3);   printf("┃    ┃    ┃    ┃    ┃");
 			gotoxy(26, 4);   printf("┃    ┃    ┃    ┃    ┃");
 			gotoxy(26, 5);   printf("┃    ┃    ┃    ┃    ┃");
-			gotoxy(26, 6);   printf("┃    ┃    ┃    ┃    ┣┓");
-			gotoxy(26, 7);   printf("┃    ┃    ┃    ┃    ┃┗┓");
+			gotoxy(26, 6);   printf("┃    ┃    ┃    ┃    ┣━┓");
+			gotoxy(26, 7);   printf("┃    ┃    ┃    ┃    ┃ ┗┓");
 			gotoxy(26, 8);   printf("┃    ┃    ┃    ┃    ┃**┃");
 			gotoxy(26, 9);   printf("┃    ┃    ┃    ┃    ┃**┃");
 			gotoxy(26, 10);  printf("┃    ┃    ┃    ┃    ┃**┃");
@@ -577,7 +578,7 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 			gotoxy(26, 20);  printf("┃    ┃    ┃    ┃    ┃**┃");
 			gotoxy(19, 21);  printf("GOOD →┃    ┃    ┃    ┃    ┃**┃");
 			gotoxy(16, 22);  printf("PERFECT →┃    ┃    ┃    ┃    ┃**┃");
-			gotoxy(26, 23);  printf("┣━━╋━━╋━━╋━━╋━┛");
+			gotoxy(26, 23);  printf("┣━━━━╋━━━━╋━━━━╋━━━━╋━━┛");
 			gotoxy(26, 24);  printf("┃    ┃    ┃    ┃    ┃");
 			gotoxy(26, 25);  printf("┃ Ｚ ┃ Ｘ ┃ Ｃ ┃ Ｖ ┃");
 			gotoxy(26, 26);  printf("┃    ┃    ┃    ┃    ┃");
@@ -615,8 +616,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 
 
 				if (note_z == 21)
-				{
-					delete_line_for_note(28, 22);
+				{	//version 1.0.1 28->27
+					delete_line_for_note(27, 22);
 					note_z = 0;
 				}
 
@@ -632,8 +633,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 				for (i = 0; i < 15; i++)
 				{
 					for (j = 0; j < 2; j++)
-					{
-						gotoxy(52 + j, i + 8);
+					{	//version 1.0.1 52->47
+						gotoxy(47 + j, i + 8);
 						if (groove_gauge[i][j] != 48)
 						{
 							printf("%c", groove_gauge[i][j]);
@@ -651,7 +652,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 
 					for (j = 0; j < 25; j++)
 					{
-						gotoxy(26 + j, i + 2);
+						//version 1.0.1 26->25
+						gotoxy(25 + j, i + 2);
 						if (tutorial_note[i][j] == 64)
 						{
 							printf("%c", tutorial_note[i][j]);
@@ -665,13 +667,13 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 
 
 				//잔상처리 
-
+				//version 1.0.1 28->27
 				note_z++;
 				tutorial_note[note_z - 1][2] = 48;
 				tutorial_note[note_z - 1][3] = 48;
 				tutorial_note[note_z - 1][4] = 48;
 				tutorial_note[note_z - 1][5] = 48;
-				delete_line_for_note(28, note_z);
+				delete_line_for_note(27, note_z);
 				Sleep(100);
 
 
@@ -680,8 +682,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 
 
 				if ((GetAsyncKeyState(0x5A) & 0x8000) && note_z == 20)
-				{
-					delete_line_for_note(28, 21);
+				{	//version 1.0.1 28->27
+					delete_line_for_note(27, 21);
 					note_z = 0;
 					good++;
 					recover_groove_good++;
@@ -708,8 +710,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 				gotoxy(56, 22); printf("Perfect %d", perfect);
 
 				if (hit == 2)
-				{
-					delete_line_for_note(28, 22);
+				{	//version 1.0.1 28->27
+					delete_line_for_note(27, 22);
 					next_step++;
 					break;
 				}
@@ -739,7 +741,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 
 				if (note_x == 21)
 				{
-					delete_line_for_note(34, 22);
+					//version 1.0.1 34->32
+					delete_line_for_note(32, 22);
 					note_x = 0;
 				}
 
@@ -756,7 +759,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 				{
 					for (j = 0; j < 2; j++)
 					{
-						gotoxy(52 + j, i + 8);
+						//version 1.0.1 52->47
+						gotoxy(47 + j, i + 8);
 						if (groove_gauge[i][j] != 48)
 						{
 							printf("%c", groove_gauge[i][j]);
@@ -774,7 +778,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 
 					for (j = 0; j < 25; j++)
 					{
-						gotoxy(32 + j, i + 2);
+						//version 1.0.1 32->30
+						gotoxy(30 + j, i + 2);
 						if (tutorial_note[i][j] == 64)
 						{
 							printf("%c", tutorial_note[i][j]);
@@ -794,7 +799,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 				tutorial_note[note_x - 1][3] = 48;
 				tutorial_note[note_x - 1][4] = 48;
 				tutorial_note[note_x - 1][5] = 48;
-				delete_line_for_note(34, note_x);
+				delete_line_for_note(32, note_x);
+				//version 1.0.1 34->32
 				Sleep(100);
 
 
@@ -803,8 +809,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 
 
 				if ((GetAsyncKeyState(0x58) & 0x8000) && note_x == 20)
-				{
-					delete_line_for_note(34, 21);
+				{	//version 1.0.1 34->32
+					delete_line_for_note(32, 21);
 					note_x = 0;
 					good++;
 					if_x_press++;
@@ -830,7 +836,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 
 				if (hit == 2)
 				{
-					delete_line_for_note(34, 22);
+					//version 1.0.1 34->32
+					delete_line_for_note(32, 22);
 					next_step++;
 					break;
 				}
@@ -860,7 +867,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 
 				if (note_c == 21)
 				{
-					delete_line_for_note(40, 22);
+					//version 1.0.1 40->37
+					delete_line_for_note(37, 22);
 					note_c = 0;
 				}
 
@@ -877,7 +885,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 				{
 					for (j = 0; j < 2; j++)
 					{
-						gotoxy(52 + j, i + 8);
+						//version 1.0.1 52->47
+						gotoxy(47 + j, i + 8);
 						if (groove_gauge[i][j] != 48)
 						{
 							printf("%c", groove_gauge[i][j]);
@@ -895,7 +904,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 
 					for (j = 0; j < 25; j++)
 					{
-						gotoxy(38 + j, i + 2);
+						//version 1.0.1 38->35
+						gotoxy(35 + j, i + 2);
 						if (tutorial_note[i][j] == 64)
 						{
 							printf("%c", tutorial_note[i][j]);
@@ -915,7 +925,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 				tutorial_note[note_c - 1][3] = 48;
 				tutorial_note[note_c - 1][4] = 48;
 				tutorial_note[note_c - 1][5] = 48;
-				delete_line_for_note(40, note_c);
+				delete_line_for_note(37, note_c);
+				//version 1.0.1 40->37
 				Sleep(100);
 
 
@@ -925,7 +936,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 
 				if ((GetAsyncKeyState(0x43) & 0x8000) && note_c == 20)
 				{
-					delete_line_for_note(40, 21);
+					//version 1.0.1 40->37
+					delete_line_for_note(37, 21);
 					note_c = 0;
 					good++;
 					if_c_press++;
@@ -951,7 +963,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 
 				if (hit == 2)
 				{
-					delete_line_for_note(40, 22);
+					//version 1.0.1 40->37
+					delete_line_for_note(37, 22);
 					next_step++;
 					break;
 				}
@@ -979,7 +992,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 
 				if (note_v == 21)
 				{
-					delete_line_for_note(46, 22);
+					//version 1.0.1 46->42
+					delete_line_for_note(42, 22);
 					note_v = 0;
 				}
 
@@ -996,7 +1010,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 				{
 					for (j = 0; j < 2; j++)
 					{
-						gotoxy(52 + j, i + 8);
+						//version 1.0.1 52->47
+						gotoxy(47 + j, i + 8);
 						if (groove_gauge[i][j] != 48)
 						{
 							printf("%c", groove_gauge[i][j]);
@@ -1014,7 +1029,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 
 					for (j = 0; j < 25; j++)
 					{
-						gotoxy(44 + j, i + 2);
+						//version 1.0.1 44->40
+						gotoxy(40 + j, i + 2);
 						if (tutorial_note[i][j] == 64)
 						{
 							printf("%c", tutorial_note[i][j]);
@@ -1034,7 +1050,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 				tutorial_note[note_v - 1][3] = 48;
 				tutorial_note[note_v - 1][4] = 48;
 				tutorial_note[note_v - 1][5] = 48;
-				delete_line_for_note(46, note_v);
+				delete_line_for_note(42, note_v);
+				//version 1.0.1 46->42
 				Sleep(100);
 
 
@@ -1044,7 +1061,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 
 				if ((GetAsyncKeyState(0x56) & 0x8000) && note_v == 20)
 				{
-					delete_line_for_note(46, 21);
+					//version 1.0.1 46->42
+					delete_line_for_note(42, 21);
 					note_v = 0;
 					good++;
 					if_v_press++;
@@ -1070,7 +1088,8 @@ void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중
 
 				if (hit == 2)
 				{
-					delete_line_for_note(46, 22);
+					//version 1.0.1 46->42
+					delete_line_for_note(42, 22);
 					next_step++;
 					wait_1 = wait;
 					break;
@@ -1102,16 +1121,20 @@ void title_1()
 {
 	gotoxy(44, 4); SetColor(12);
 	printf("! WARNING !");
-	gotoxy(23, 7); SetColor(15);
+	gotoxy(18, 6);
+	printf("해당 문구와 게임에 나오는 모든 것들은 전부 허구성이 포함되어있습니다!");
+	gotoxy(38, 7);
+	printf("All of things are fiction!!");
+	gotoxy(23, 8); SetColor(15);
 	printf("THIS GAME IS ONLY FOR SALE AND USED IN REPUBLIC OF KOREA.");
-	gotoxy(28, 8);
+	gotoxy(28, 9);
 	printf("EXPORT, SALES, DISTRIBUTION, OPERATION OUTSIDE");
-	gotoxy(30, 9);
+	gotoxy(30, 10);
 	printf("THIS COUNTRY AND ILLEGAL EDIT & COPYING OF");
-	gotoxy(23, 10);
-	printf("THIS GAME IS NOT PROHIBITED BY INTERNATIONAL COPYRIGHT LAWS");
-	gotoxy(21, 10);
-	printf("VIOLATORS ALL BE NOT PROSECUTED TO THE MAXIMUM EXTENT POSSIBLE");
+	gotoxy(23, 11);
+	printf("THIS GAME IS PROHIBITED BY INTERNATIONAL COPYRIGHT LAWS");
+	gotoxy(21, 11);
+	printf("VIOLATORS ALL BE PROSECUTED TO THE MAXIMUM EXTENT POSSIBLE");
 	gotoxy(25, 13);
 	printf("이 게임은 대한민국 내에서만 유통 및 사용이 가능하며");
 	gotoxy(23, 14);
@@ -1119,12 +1142,12 @@ void title_1()
 	gotoxy(27, 15);
 	printf("타국으로의 수출, 판매 및 불법 개조, 복제 행위는");
 	gotoxy(17, 16);
-	printf("국제 법으로 금지되어있지는 않으므로 위반시 법적 처벌을 받을 수 없습니다.");
+	printf("국제 법으로 금지되어있음으로 위반시 법적 처벌을 받을 수 있습니다.");
 	gotoxy(23, 20);
 	printf("E A Z Y  T O  D J  :  E N D L E S S   C I R C U L A T I O N");
 	gotoxy(20, 21);
 	printf("COPYRIGHT(C) 2016-2016 HYPERDIMENSION NEPTUNIA ALL RIGHT RESERVED\n");
-	Sleep(6500); //영상촬영을 키는 시간을 위해 1500millisec 더 추가했습니다. 본래는 5초
+	Sleep(5000);
 	system("cls");
 }
 void title_2()
@@ -1465,8 +1488,9 @@ void print_groove_gauge(char groove_gauge[][2])
 	for (i = 0; i < 15; i++)
 	{
 		for (j = 0; j < 2; j++)
-		{
-			gotoxy(38 + j, i + 8);
+		{ 
+			//version 1.0.1 38->33 8->9
+			gotoxy(33 + j, i + 9);
 			if (groove_gauge[i][j] != 48)
 			{
 				printf("%c", groove_gauge[i][j]);
@@ -1544,8 +1568,8 @@ void basic_pad()
 	gotoxy(X1, 4);  printf("┃    ┃    ┃    ┃    ┃\n");
 	gotoxy(X1, 5);  printf("┃    ┃    ┃    ┃    ┃\n");
 	gotoxy(X1, 6);  printf("┃    ┃    ┃    ┃    ┃\n");
-	gotoxy(X1, 7);  printf("┃    ┃    ┃    ┃    ┣┓\n");
-	gotoxy(X1, 8);  printf("┃    ┃    ┃    ┃    ┃┗┓\n");
+	gotoxy(X1, 7);  printf("┃    ┃    ┃    ┃    ┣━┓\n");
+	gotoxy(X1, 8);  printf("┃    ┃    ┃    ┃    ┃ ┗┓\n");
 	gotoxy(X1, 9);  printf("┃    ┃    ┃    ┃    ┃00┃\n");
 	gotoxy(X1, 10); printf("┃    ┃    ┃    ┃    ┃00┃\n");
 	gotoxy(X1, 11); printf("┃    ┃    ┃    ┃    ┃00┃\n");
@@ -1561,7 +1585,7 @@ void basic_pad()
 	gotoxy(X1, 21); printf("┃    ┃    ┃    ┃    ┃00┃\n");
 	gotoxy(X1, 22); printf("┃    ┃    ┃    ┃    ┃00┃\n");
 	gotoxy(X1, 23); printf("┃    ┃    ┃    ┃    ┃00┃\n");
-	gotoxy(X1, 24); printf("┣━━╋━━╋━━╋━━╋━┛\n");
+	gotoxy(X1, 24); printf("┣━━━━╋━━━━╋━━━━╋━━━━╋━━┛\n");
 	gotoxy(X1, 25); printf("┃    ┃    ┃    ┃    ┃\n");
 	gotoxy(X1, 26); printf("┃    ┃    ┃    ┃    ┃\n");
 	gotoxy(X1, 27); printf("┃ Ｚ ┃ Ｘ ┃ Ｃ ┃ Ｖ ┃\n");
@@ -1688,7 +1712,6 @@ void Music_1_Note()
 		note_advance(c_8, c, note_time, 172);
 		note_advance(x_2, x, note_time, 178);
 		note_advance(z_8, z, note_time, 182);
-
 
 
 
@@ -2744,7 +2767,7 @@ void Music_2_Note()
 		if (note_time == 23)
 		{
 
-			PlaySound(TEXT("music2.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP | SND_NODEFAULT);
+			PlaySound(TEXT("Music2.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP | SND_NODEFAULT);
 
 		}
 
@@ -3399,7 +3422,7 @@ void Music_3_Note()
 		if (note_time == 23)
 		{
 
-			PlaySound(TEXT("music3.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP | SND_NODEFAULT);
+			PlaySound(TEXT("Music3.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP | SND_NODEFAULT);
 
 		}
 
@@ -5785,7 +5808,7 @@ void Select_Music_Decorate() //음악선택화면에서 꾸미기 역할
 	gotoxy(88, 3); printf("┃");
 	gotoxy(88, 4); printf("┃   ＴＩＭＥ");
 	gotoxy(88, 5); printf("┃");
-	gotoxy(88, 6); printf("┗━━━━━━━");
+	gotoxy(88, 6); printf("┗━━━━━━━━━━━━━━━━━━━");
 
 	gotoxy(14, 3); printf("S E L E C T  α  M U S I C ");
 	gotoxy(66, 1); printf("(p `>ω<´q) ");
@@ -5798,8 +5821,8 @@ void Select_Music_Decorate() //음악선택화면에서 꾸미기 역할
 	gotoxy(0, 5);  printf("＼─");
 	gotoxy(4, 5);  printf("＼─");
 	gotoxy(4, 6);  printf("＼─"); gotoxy(46, 5); printf("／─");
-	gotoxy(8, 6);  printf("＼──────────────────／─");
-	gotoxy(8, 7);  printf("＼──────────────────");
+	gotoxy(8, 6);  printf("＼──────────────────／───────────────／");
+	gotoxy(8, 7);  printf("＼─────────────────／───────────────／");
 	gotoxy(50, 4); printf("／─");
 	gotoxy(50, 5); printf("／─");
 	gotoxy(54, 3); printf("／");
