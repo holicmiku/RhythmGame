@@ -9,6 +9,8 @@
 #include<mmsystem.h> //playsound 보조
 #include "resource.h"
 
+#pragma comment(lib,"winmm.lib")
+
 //실제 스테이지에서 출력하는 노트의 위치들 gotoxy의 좌표값.
 #define z 13 //version 1.0.1 14->13
 #define x 18 //version 1.0.1 20->18
@@ -22,16 +24,20 @@
 #define Enter 13
 
 
-int stage = 1; //스테이지
-int music = 0; //노래성적 반영을 위한 몇번째 곡인지 알기위한 전역변수
+short stage = 1; //현재의 스테이지
+short music = 0; //노래성적 반영을 위한 몇번째 곡인지 알기위한 전역변수
 int music_score = 0; //노래 성적
-int draw_bitmap = 1; //비트맵 그리기 중 게임이 일정시간 멈추는현상을 해결하기위한 전역변수
-int save_score1 = 0;
-int save_score2 = 0;
-int save_score3 = 0;
+bool draw_bitmap = true; //비트맵 그리기 중 게임이 일정시간 멈추는현상을 해결하기위한 전역변수
+
+int save_score1 = 0; //첫번째 곡의 스코어(플레이마다 제일 높은 점수가 갱신됨)
+int save_score2 = 0; //두번째 곡의 스코어
+int save_score3 = 0; //세번째 곡의 스코어
+
+short Fix_Note = 1; 
+//version 1.0.0 - 1.0.1에서의 튜토리얼 노트 제외 본게임 노트가 실제판정보다 1칸 더 빨리 없어지는 것을 해결하기위한 변수
 
 
-#pragma comment(lib,"winmm.lib")
+
 
 void gotoxy(int x1, int y1) //좌표 이동 함수
 {
@@ -49,6 +55,7 @@ void delete_Cursor()
 }
 void DrawBitmap(HDC hdc, int x1, int y1, HBITMAP hBit)  //비트맵 출력 api함수
 {
+
 	HDC MemDC;
 	HBITMAP OldBitmap;
 	int bx, by;
@@ -65,7 +72,9 @@ void DrawBitmap(HDC hdc, int x1, int y1, HBITMAP hBit)  //비트맵 출력 api�
 
 	SelectObject(MemDC, OldBitmap);
 	DeleteDC(MemDC);
+
 }
+
 void bmp_draw()  //비트맵 출력 api함수
 {
 	int count = 1;
@@ -90,8 +99,8 @@ void bmp_draw()  //비트맵 출력 api함수
 		while (1) {
 
 			hdc = GetDC(hWnd);
-			DrawBitmap(hdc, 1000, 1000, hBit);
-			ReleaseDC(hWnd, hdc);
+			DrawBitmap(hdc, 500, 240, hBit);
+			
 			Sleep(1);
 			break;
 
@@ -100,6 +109,7 @@ void bmp_draw()  //비트맵 출력 api함수
 
 		}
 		count = 0;
+		ReleaseDC(hWnd, hdc);
 	}
 
 
@@ -1347,8 +1357,8 @@ void title_3()
 	printf("*      *");
 	gotoxy(47, 6);
 	printf("******");
-	gotoxy(42, 22);
-	printf("INSERT COIN(S)");
+	gotoxy(37, 22);
+	printf("Press F1 to INSERT COIN(S)");
 	gotoxy(20, 25);
 	printf("COPYRIGHT(C) 2016-2016 HYPERDIMENSION NEPTUNIA ALL RIGHT RESERVED\n");
 	square_circulation();
@@ -1561,7 +1571,7 @@ int press_v_key(int judgement)
 }
 void basic_pad()
 {
-
+	gotoxy(X1, 0);  printf("┃    ┃    ┃    ┃    ┃\n");
 	gotoxy(X1, 1);  printf("┃    ┃    ┃    ┃    ┃\n");
 	gotoxy(X1, 2);  printf("┃    ┃    ┃    ┃    ┃\n");
 	gotoxy(X1, 3);  printf("┃    ┃    ┃    ┃    ┃\n");
@@ -1645,6 +1655,7 @@ void Music_1_Note()
 	int start_music = 1;
 	int note_time = 0;
 	int game_over_pass_key = 0;
+	
 
 	memset(groove_gauge, 42, sizeof(char) * 15 * 2);
 
@@ -1655,8 +1666,8 @@ void Music_1_Note()
 
 	while (1)
 	{
-
-		if (note_time == 23)
+		//23->24
+		if (note_time == 24)
 		{
 
 			PlaySound(TEXT("Music1.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP | SND_NODEFAULT);
@@ -1714,7 +1725,7 @@ void Music_1_Note()
 		note_advance(z_8, z, note_time, 182);
 
 
-
+		//노트의 속도 현재 조정중..
 		Sleep(104);
 
 
@@ -1849,7 +1860,7 @@ void Music_1_Note()
 		}
 		//
 
-		if (note_time == 21)
+		if (note_time == 22)
 		{
 			judge = 1;
 			if (press_z_key(judge) == 1)
@@ -1860,7 +1871,7 @@ void Music_1_Note()
 			}
 			judge = 0;
 		}
-		if (note_time == 22 && z_1 == 1)
+		if (note_time == 23 && z_1 == 1)
 		{
 			judge = 2;
 			if (press_z_key(judge) == 2)
@@ -2446,13 +2457,15 @@ void Music_1_Note()
 			}
 			judge = 0;
 		}
+
+
 		note_time++;
 
 
 		//      miss의 처리
 
 
-		if (note_time == 23 && z_1 == 1)
+		if ((note_time == 23 + Fix_Note) && z_1 == 1)
 		{
 			z_1 = 0;
 			miss++;
@@ -2461,7 +2474,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 29 && c_1 == 1)
+		if ((note_time == 29 + Fix_Note) && c_1 == 1)
 		{
 			c_1 = 0;
 			miss++;
@@ -2470,7 +2483,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 33 && v_1 == 1)
+		if ((note_time == 33 + Fix_Note) && v_1 == 1)
 		{
 			v_1 = 0;
 			miss++;
@@ -2479,7 +2492,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 48 && z_2 == 1)
+		if ((note_time == 48 + Fix_Note) && z_2 == 1)
 		{
 			z_2 = 0;
 			miss++;
@@ -2488,7 +2501,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 54 && c_2 == 1)
+		if ((note_time == 54 + Fix_Note) && c_2 == 1)
 		{
 			c_2 = 0;
 			miss++;
@@ -2497,7 +2510,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 58 && v_2 == 1)
+		if ((note_time == 58 + Fix_Note) && v_2 == 1)
 		{
 			v_2 = 0;
 			miss++;
@@ -2506,7 +2519,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 73 && z_3 == 1)
+		if ((note_time == 73 + Fix_Note) && z_3 == 1)
 		{
 			z_3 = 0;
 			miss++;
@@ -2515,7 +2528,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 77 && c_3 == 1)
+		if ((note_time == 77 + Fix_Note) && c_3 == 1)
 		{
 			c_3 = 0;
 			miss++;
@@ -2524,7 +2537,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 81 && v_3 == 1)
+		if ((note_time == 81 + Fix_Note) && v_3 == 1)
 		{
 			v_3 = 0;
 			miss++;
@@ -2533,7 +2546,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 89 && v_4 == 1)
+		if ((note_time == 89 + Fix_Note) && v_4 == 1)
 		{
 			v_4 = 0;
 			miss++;
@@ -2542,7 +2555,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 97 && c_4 == 1)
+		if ((note_time == 97 + Fix_Note) && c_4 == 1)
 		{
 			c_4 = 0;
 			miss++;
@@ -2551,7 +2564,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 103 && x_1 == 1)
+		if ((note_time == 103 + Fix_Note) && x_1 == 1)
 		{
 			x_1 = 0;
 			miss++;
@@ -2560,7 +2573,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 107 && z_4 == 1)
+		if ((note_time == 107 + Fix_Note) && z_4 == 1)
 		{
 			z_4 = 0;
 			miss++;
@@ -2569,7 +2582,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 121 && z_5 == 1)
+		if ((note_time == 121 + Fix_Note) && z_5 == 1)
 		{
 			z_5 = 0;
 			miss++;
@@ -2578,7 +2591,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 127 && c_5 == 1)
+		if ((note_time == 127 + Fix_Note) && c_5 == 1)
 		{
 			c_5 = 0;
 			miss++;
@@ -2587,7 +2600,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 131 && v_5 == 1)
+		if ((note_time == 131 + Fix_Note) && v_5 == 1)
 		{
 			v_5 = 0;
 			miss++;
@@ -2596,7 +2609,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 146 && z_6 == 1)
+		if ((note_time == 146 + Fix_Note) && z_6 == 1)
 		{
 			z_6 = 0;
 			miss++;
@@ -2605,7 +2618,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 152 && c_6 == 1)
+		if ((note_time == 152 + Fix_Note) && c_6 == 1)
 		{
 			c_6 = 0;
 			miss++;
@@ -2614,7 +2627,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 156 && v_6 == 1)
+		if ((note_time == 156 + Fix_Note) && v_6 == 1)
 		{
 			v_6 = 0;
 			miss++;
@@ -2623,7 +2636,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 171 && z_7 == 1)
+		if ((note_time == 171 + Fix_Note) && z_7 == 1)
 		{
 			z_7 = 0;
 			miss++;
@@ -2632,7 +2645,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 175 && c_7 == 1)
+		if ((note_time == 175 + Fix_Note) && c_7 == 1)
 		{
 			c_7 = 0;
 			miss++;
@@ -2641,7 +2654,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 179 && v_7 == 1)
+		if ((note_time == 179 + Fix_Note) && v_7 == 1)
 		{
 			v_7 = 0;
 			miss++;
@@ -2650,7 +2663,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 187 && v_8 == 1)
+		if ((note_time == 187 + Fix_Note) && v_8 == 1)
 		{
 			v_8 = 0;
 			miss++;
@@ -2659,7 +2672,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 195 && c_8 == 1)
+		if ((note_time == 195 + Fix_Note) && c_8 == 1)
 		{
 			c_8 = 0;
 			miss++;
@@ -2668,7 +2681,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 201 && x_2 == 1)
+		if ((note_time == 201 + Fix_Note) && x_2 == 1)
 		{
 			x_2 = 0;
 			miss++;
@@ -2677,7 +2690,7 @@ void Music_1_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 205 && z_8 == 1)
+		if ((note_time == 205 + Fix_Note) && z_8 == 1)
 		{
 			z_8 = 0;
 			miss++;
@@ -2735,7 +2748,7 @@ void Music_1_Note()
 		stage++;
 		music = 1;
 		music_score = perfect * 300 + good * 100;
-		draw_bitmap = 1;
+		draw_bitmap = true;
 	}
 
 
@@ -3216,7 +3229,7 @@ void Music_2_Note()
 		note_time++;
 
 
-		if (note_time == 23 && z_1 == 1)
+		if (note_time == 23 + Fix_Note && z_1 == 1)
 		{
 			z_1 = 0;
 			miss++;
@@ -3225,7 +3238,7 @@ void Music_2_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 39 && v_1 == 1)
+		if (note_time == 39 + Fix_Note && v_1 == 1)
 		{
 			v_1 = 0;
 			miss++;
@@ -3234,7 +3247,7 @@ void Music_2_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 53 && x_1 == 1)
+		if (note_time == 53 + Fix_Note && x_1 == 1)
 		{
 			x_1 = 0;
 			miss++;
@@ -3243,7 +3256,7 @@ void Music_2_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 67 && c_1 == 1)
+		if (note_time == 67 + Fix_Note && c_1 == 1)
 		{
 			c_1 = 0;
 			miss++;
@@ -3252,7 +3265,7 @@ void Music_2_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 83 && z_2 == 1)
+		if (note_time == 83 + Fix_Note && z_2 == 1)
 		{
 			z_2 = 0;
 			miss++;
@@ -3261,7 +3274,7 @@ void Music_2_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 97 && x_2 == 1)
+		if (note_time == 97 + Fix_Note && x_2 == 1)
 		{
 			x_2 = 0;
 			miss++;
@@ -3270,7 +3283,7 @@ void Music_2_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 111 && v_2 == 1)
+		if (note_time == 111 + Fix_Note && v_2 == 1)
 		{
 			v_2 = 0;
 			miss++;
@@ -3279,7 +3292,7 @@ void Music_2_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 147 && c_2 == 1)
+		if (note_time == 147 + Fix_Note && c_2 == 1)
 		{
 			c_2 = 0;
 			miss++;
@@ -3288,7 +3301,7 @@ void Music_2_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 161 && v_3 == 1)
+		if (note_time == 161 + Fix_Note && v_3 == 1)
 		{
 			v_3 = 0;
 			miss++;
@@ -3297,7 +3310,7 @@ void Music_2_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 175 && x_3 == 1)
+		if (note_time == 175 + Fix_Note && x_3 == 1)
 		{
 			x_3 = 0;
 			miss++;
@@ -3306,7 +3319,7 @@ void Music_2_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 187 && c_3 == 1)
+		if (note_time == 187 + Fix_Note && c_3 == 1)
 		{
 			c_3 = 0;
 			miss++;
@@ -3315,7 +3328,7 @@ void Music_2_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 201 && z_3 == 1)
+		if (note_time == 201 + Fix_Note && z_3 == 1)
 		{
 			z_3 = 0;
 			miss++;
@@ -3324,7 +3337,7 @@ void Music_2_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 215 && z_4 == 1)
+		if (note_time == 215 + Fix_Note && z_4 == 1)
 		{
 			z_4 = 0;
 			miss++;
@@ -3333,7 +3346,7 @@ void Music_2_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 233 && x_4 == 1)
+		if (note_time == 233 + Fix_Note && x_4 == 1)
 		{
 			x_4 = 0;
 			miss++;
@@ -3391,7 +3404,7 @@ void Music_2_Note()
 		stage++;
 		music = 2;
 		music_score = perfect * 300 + good * 100;
-		draw_bitmap = 1;
+		draw_bitmap = true;
 	}
 }
 void Music_3_Note()
@@ -4807,7 +4820,7 @@ void Music_3_Note()
 		note_time++;
 
 
-		if (note_time == 23 && z_1 == 1)
+		if (note_time == 23 + Fix_Note && z_1 == 1)
 		{
 			z_1 = 0;
 			miss++;
@@ -4816,7 +4829,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 27 && v_1 == 1)
+		if (note_time == 27 + Fix_Note && v_1 == 1)
 		{
 			v_1 = 0;
 			miss++;
@@ -4825,7 +4838,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 32 && z_2 == 1)
+		if (note_time == 32 + Fix_Note && z_2 == 1)
 		{
 			z_2 = 0;
 			miss++;
@@ -4834,7 +4847,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 36 && v_2 == 1)
+		if (note_time == 36 + Fix_Note && v_2 == 1)
 		{
 			v_2 = 0;
 			miss++;
@@ -4843,7 +4856,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 40 && z_3 == 1)
+		if (note_time == 40 + Fix_Note && z_3 == 1)
 		{
 			z_3 = 0;
 			miss++;
@@ -4852,7 +4865,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 44 && v_3 == 1)
+		if (note_time == 44 + Fix_Note && v_3 == 1)
 		{
 			v_3 = 0;
 			miss++;
@@ -4861,7 +4874,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 48 && z_4 == 1)
+		if (note_time == 48 + Fix_Note && z_4 == 1)
 		{
 			z_4 = 0;
 			miss++;
@@ -4870,7 +4883,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 52 && v_4 == 1)
+		if (note_time == 52 + Fix_Note && v_4 == 1)
 		{
 			v_4 = 0;
 			miss++;
@@ -4879,7 +4892,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 57 && x_1 == 1)
+		if (note_time == 57 + Fix_Note && x_1 == 1)
 		{
 			x_1 = 0;
 			miss++;
@@ -4888,7 +4901,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 61 && c_1 == 1)
+		if (note_time == 61 + Fix_Note && c_1 == 1)
 		{
 			c_1 = 0;
 			miss++;
@@ -4897,7 +4910,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 65 && x_2 == 1)
+		if (note_time == 65 + Fix_Note && x_2 == 1)
 		{
 			x_2 = 0;
 			miss++;
@@ -4906,7 +4919,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 69 && c_2 == 1)
+		if (note_time == 69 + Fix_Note && c_2 == 1)
 		{
 			c_2 = 0;
 			miss++;
@@ -4915,7 +4928,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 73 && x_3 == 1)
+		if (note_time == 73 + Fix_Note && x_3 == 1)
 		{
 			x_3 = 0;
 			miss++;
@@ -4924,7 +4937,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 77 && c_3 == 1)
+		if (note_time == 77 + Fix_Note && c_3 == 1)
 		{
 			c_3 = 0;
 			miss++;
@@ -4933,7 +4946,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 81 && x_4 == 1)
+		if (note_time == 81 + Fix_Note && x_4 == 1)
 		{
 			x_4 = 0;
 			miss++;
@@ -4942,7 +4955,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 85 && c_4 == 1)
+		if (note_time == 85 + Fix_Note && c_4 == 1)
 		{
 			c_4 = 0;
 			miss++;
@@ -4951,7 +4964,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 90 && z_5 == 1)
+		if (note_time == 90 + Fix_Note && z_5 == 1)
 		{
 			z_5 = 0;
 			miss++;
@@ -4960,7 +4973,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 94 && c_5 == 1)
+		if (note_time == 94 + Fix_Note && c_5 == 1)
 		{
 			c_5 = 0;
 			miss++;
@@ -4969,7 +4982,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 98 && z_6 == 1)
+		if (note_time == 98 + Fix_Note && z_6 == 1)
 		{
 			z_6 = 0;
 			miss++;
@@ -4978,7 +4991,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 102 && c_6 == 1)
+		if (note_time == 102 + Fix_Note && c_6 == 1)
 		{
 			c_6 = 0;
 			miss++;
@@ -4987,7 +5000,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 106 && z_7 == 1)
+		if (note_time == 106 + Fix_Note && z_7 == 1)
 		{
 			z_7 = 0;
 			miss++;
@@ -4996,7 +5009,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 110 && c_7 == 1)
+		if (note_time == 110 + Fix_Note && c_7 == 1)
 		{
 			c_7 = 0;
 			miss++;
@@ -5005,7 +5018,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 114 && z_8 == 1)
+		if (note_time == 114 + Fix_Note && z_8 == 1)
 		{
 			z_8 = 0;
 			miss++;
@@ -5014,7 +5027,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 118 && c_8 == 1)
+		if (note_time == 118 + Fix_Note && c_8 == 1)
 		{
 			c_8 = 0;
 			miss++;
@@ -5023,7 +5036,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 123 && x_5 == 1)
+		if (note_time == 123 + Fix_Note && x_5 == 1)
 		{
 			x_5 = 0;
 			miss++;
@@ -5032,7 +5045,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 127 && v_5 == 1)
+		if (note_time == 127 + Fix_Note && v_5 == 1)
 		{
 			v_5 = 0;
 			miss++;
@@ -5041,7 +5054,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 131 && x_6 == 1)
+		if (note_time == 131 + Fix_Note && x_6 == 1)
 		{
 			x_6 = 0;
 			miss++;
@@ -5050,7 +5063,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 135 && v_6 == 1)
+		if (note_time == 135 + Fix_Note && v_6 == 1)
 		{
 			v_6 = 0;
 			miss++;
@@ -5059,7 +5072,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 139 && x_7 == 1)
+		if (note_time == 139 + Fix_Note && x_7 == 1)
 		{
 			x_7 = 0;
 			miss++;
@@ -5068,7 +5081,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 143 && v_7 == 1)
+		if (note_time == 143 + Fix_Note && v_7 == 1)
 		{
 			v_7 = 0;
 			miss++;
@@ -5077,7 +5090,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 147 && x_8 == 1)
+		if (note_time == 147 + Fix_Note && x_8 == 1)
 		{
 			x_8 = 0;
 			miss++;
@@ -5086,7 +5099,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 151 && v_8 == 1)
+		if (note_time == 151 + Fix_Note && v_8 == 1)
 		{
 			v_8 = 0;
 			miss++;
@@ -5095,7 +5108,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 156 && z_9 == 1)
+		if (note_time == 156 + Fix_Note && z_9 == 1)
 		{
 			z_9 = 0;
 			miss++;
@@ -5104,7 +5117,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 160 && x_9 == 1)
+		if (note_time == 160 + Fix_Note && x_9 == 1)
 		{
 			x_9 = 0;
 			miss++;
@@ -5113,7 +5126,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 164 && c_9 == 1)
+		if (note_time == 164 + Fix_Note && c_9 == 1)
 		{
 			c_9 = 0;
 			miss++;
@@ -5122,7 +5135,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 168 && v_9 == 1)
+		if (note_time == 168 + Fix_Note && v_9 == 1)
 		{
 			v_9 = 0;
 			miss++;
@@ -5131,7 +5144,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 172 && c_10 == 1)
+		if (note_time == 172 + Fix_Note && c_10 == 1)
 		{
 			c_10 = 0;
 			miss++;
@@ -5140,7 +5153,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 176 && x_10 == 1)
+		if (note_time == 176 + Fix_Note && x_10 == 1)
 		{
 			x_10 = 0;
 			miss++;
@@ -5149,7 +5162,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 180 && z_10 == 1)
+		if (note_time == 180 + Fix_Note && z_10 == 1)
 		{
 			z_10 = 0;
 			miss++;
@@ -5158,7 +5171,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 184 && x_11 == 1)
+		if (note_time == 184 + Fix_Note && x_11 == 1)
 		{
 			x_11 = 0;
 			miss++;
@@ -5167,7 +5180,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 189 && c_11 == 1)
+		if (note_time == 189 + Fix_Note && c_11 == 1)
 		{
 			c_11 = 0;
 			miss++;
@@ -5176,7 +5189,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 193 && v_10 == 1)
+		if (note_time == 193 + Fix_Note && v_10 == 1)
 		{
 			v_10 = 0;
 			miss++;
@@ -5185,7 +5198,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 197 && c_12 == 1)
+		if (note_time == 197 + Fix_Note && c_12 == 1)
 		{
 			c_12 = 0;
 			miss++;
@@ -5194,7 +5207,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 201 && x_12 == 1)
+		if (note_time == 201 + Fix_Note && x_12 == 1)
 		{
 			x_12 = 0;
 			miss++;
@@ -5203,7 +5216,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 205 && z_11 == 1)
+		if (note_time == 205 + Fix_Note && z_11 == 1)
 		{
 			z_11 = 0;
 			miss++;
@@ -5212,7 +5225,7 @@ void Music_3_Note()
 			recover_groove_good = 0;
 		}
 
-		if (note_time == 214 && z_12 == 1)
+		if (note_time == 214 + Fix_Note && z_12 == 1)
 		{
 			z_12 = 0;
 			miss++;
@@ -5270,7 +5283,7 @@ void Music_3_Note()
 		stage++;
 		music = 3;
 		music_score = perfect * 300 + good * 100;
-		draw_bitmap = 1;
+		draw_bitmap = true;
 	}
 }
 void Music_1(int music_score, int music)
@@ -5293,12 +5306,12 @@ void Music_1(int music_score, int music)
 	delete_line_for_make_space(0, 26);
 	delete_line_for_make_space(0, 28);
 
-	if (draw_bitmap == 1)
+	if (draw_bitmap == true)
 	{
-
 		bmp_draw();
+		//안그려지는 경우가 있을때 한번 더 그림.
 		bmp_draw();
-		draw_bitmap = 0;
+		draw_bitmap = false;
 	}
 	gotoxy(18, 9); printf("UNDERTALE Soundtrack");
 	gotoxy(19, 10); printf("Music by Toby Fox");
