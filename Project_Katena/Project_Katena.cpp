@@ -4,12 +4,19 @@
 #include<time.h>
 #include<conio.h> //_getch,_kbhit
 
+#include<fstream>
+#include<iostream>
+#include<string>
+#include<vector>
+
 #include<memory.h> //memset
 #include<windows.h>//system 관련 함수
 #include<mmsystem.h> //playsound 보조
 #include "resource.h"
 
 #pragma comment(lib,"winmm.lib")
+using namespace std;
+vector<string> Note1;
 
 //실제 스테이지에서 출력하는 노트의 위치들 gotoxy의 좌표값.
 #define z 13 //version 1.0.1 14->13
@@ -22,7 +29,9 @@
 #define left 75
 #define right 77
 #define Enter 13
-
+#define Music_1_BPM 550
+#define Music_2_BPM 923
+#define Music_3_BPM 483
 
 short stage = 1; //현재의 스테이지
 short music = 0; //노래성적 반영을 위한 몇번째 곡인지 알기위한 전역변수
@@ -33,10 +42,99 @@ int save_score1 = 0; //첫번째 곡의 스코어(플레이마다 제일 높은 
 int save_score2 = 0; //두번째 곡의 스코어
 int save_score3 = 0; //세번째 곡의 스코어
 
+float Speed = 2.00;
 short Fix_Note = 1; 
 //version 1.0.0 - 1.0.1에서의 튜토리얼 노트 제외 본게임 노트가 실제판정보다 1칸 더 빨리 없어지는 것을 해결하기위한 변수
 
 
+string delete_number_in_str(string str)
+{
+	string edited_str;
+	for (int i = 0; i < str.length(); i++)
+	{
+		if (str[i] == 48 || str[i] == 49)
+		{
+
+		}
+		else
+		{
+			edited_str.push_back(str[i]);
+		}
+	}
+	return edited_str;
+}
+void Load_Music_1_Note_Not_Reverse()
+{
+	ifstream Note_File;
+	string str;
+	Note_File.open("note1.txt");
+	while (1)
+	{
+		if (Note_File.eof())
+		{
+			break;
+		}
+		getline(Note_File, str);
+		Note1.push_back(str);
+	}
+	Note_File.close();
+}
+void Load_Music_1_Note()
+{
+	ifstream Note_File;
+	string str;
+	Note_File.open("note1.txt");
+	while (1)
+	{
+		if (Note_File.eof())
+		{
+			break;
+		}
+		getline(Note_File, str);
+		Note1.push_back(str);
+		//Sleep(550);
+	}
+	Note_File.close();
+	reverse(Note1.begin(), Note1.end());
+}
+void Load_Music_2_Note()
+{
+	ifstream Note_File;
+	vector<string> Note2;
+	string str;
+	Note_File.open("note2.txt");
+	while (1)
+	{
+		if (Note_File.eof())
+		{
+			break;
+		}
+		getline(Note_File, str);
+		Note2.push_back(str);
+		//Sleep(923);
+	}
+	Note_File.close();
+	//reverse_note(Note2);
+}
+void Load_Music_3_Note()
+{
+	ifstream Note_File;
+	vector<string> Note3;
+	string str;
+	Note_File.open("note3.txt");
+	while (1)
+	{
+		if (Note_File.eof())
+		{
+			break;
+		}
+		getline(Note_File, str);
+		Note3.push_back(str);
+		//Sleep(483);
+	}
+	Note_File.close();
+	//reverse_note(Note3);
+}
 
 
 void gotoxy(int x1, int y1) //좌표 이동 함수
@@ -77,7 +175,7 @@ void DrawBitmap(HDC hdc, int x1, int y1, HBITMAP hBit)  //비트맵 출력 api�
 
 void bmp_draw()  //비트맵 출력 api함수
 {
-	int count = 1;
+	short count = 1;
 
 	HBITMAP hBit;
 	HDC hdc;
@@ -120,16 +218,16 @@ void SetColor(int color) //글꼴 색상 지정 함수
 }
 void pattern(char note[][15], int num, int num1) // 노래선택화면에서 애니메이션 출력부분 보조.
 {
-	int i;
+	short i;
 	for (i = 0; i < num; i++)
 	{
 		note[11 - i][num1] = 64;
 	}
 
 }
-void delete_line(int x1, int y1) // 현재 고정된 화면 가로 110, 세로 30 기준으로 만든 deleteline함수 , 컴퓨터마다 110 30의 기준이 다르므로 주의
+void delete_line(short x1, short y1) // 현재 고정된 화면 가로 110, 세로 30 기준으로 만든 deleteline함수 , 컴퓨터마다 110 30의 기준이 다르므로 주의
 {
-	int delete_lines;
+	short delete_lines;
 	gotoxy(x1, y1);
 	for (delete_lines = 0; delete_lines < 110 - x1; delete_lines++)
 	{
@@ -137,27 +235,27 @@ void delete_line(int x1, int y1) // 현재 고정된 화면 가로 110, 세로 3
 	}
 
 }
-void delete_line_for_make_space(int x1, int y1) // 한줄이 아닌 일정부분만 지우기 위해 제작
+void delete_line_for_make_space(short x1, short y1) // 한줄이 아닌 일정부분만 지우기 위해 제작
 {
-	int delete_lines_for_make_space;
+	short delete_lines_for_make_space;
 	gotoxy(x1, y1);
 	for (delete_lines_for_make_space = 0; delete_lines_for_make_space < 40; delete_lines_for_make_space++)
 	{
 		printf(" ");
 	}
 }
-void delete_line_for_make_space1(int x1, int y1)
+void delete_line_for_make_space1(short x1, short y1)
 {
-	int delete_lines_for_make_space1;
+	short delete_lines_for_make_space1;
 	gotoxy(x1, y1);
 	for (delete_lines_for_make_space1 = 0; delete_lines_for_make_space1 < 34; delete_lines_for_make_space1++)
 	{
 		printf(" ");
 	}
 }
-void delete_line_for_note(int x1, int y1) //4칸을 차지하는 노트만 지우는 함수
+void delete_line_for_note(short x1, short y1) //4칸을 차지하는 노트만 지우는 함수
 {
-	int delete_lines;
+	short delete_lines;
 	gotoxy(x1, y1);
 	for (delete_lines = 0; delete_lines < 4; delete_lines++)
 	{
@@ -167,8 +265,8 @@ void delete_line_for_note(int x1, int y1) //4칸을 차지하는 노트만 지�
 }
 void array_move(char* array) //array 관련 함수들은 튜토리얼중 위아래에서 움직이는 타이틀 처리 관련 함수들입니다.
 {
-	int m;
-	int string_length = strlen(array);
+	short m;
+	short string_length = strlen(array);
 	char temp = array[0];
 	for (m = 0; m < string_length - 1; m++)
 	{
@@ -178,8 +276,8 @@ void array_move(char* array) //array 관련 함수들은 튜토리얼중 위아�
 }
 void array_remove(char* array)
 {
-	int k;
-	int string_length_1 = strlen(array);
+	short k;
+	short string_length_1 = strlen(array);
 	char temp_1 = array[string_length_1 - 1];
 	for (k = string_length_1 - 1; k > 0; k--)
 	{
@@ -207,32 +305,31 @@ void array_backslide(char* array)
 }
 void simultaneous_move_plus_extra(char* array, char* array_1) //튜토리얼 중 나오는 모든 처리 과정
 {
-	int wait = 0;
-	int wait_1 = 0; //튜토리얼 시간은 사람마다 다르므로 wait를 다시 지정해줍니다.
-	int next_step = 0; //다음으로 가기 위한 조건
+	short wait = 0;
+	short wait_1 = 0; //튜토리얼 시간은 사람마다 다르므로 wait를 다시 지정해줍니다.
+	short next_step = 0; //다음으로 가기 위한 조건
 	char SKIP; //스킵
-//
 	char tutorial_note[24][25]; //튜토리얼용 노트 배열입니다.
 	char groove_gauge[15][2]; //그루브게이지(HP) 배열입니다,
-	int i, j; //for문을 위해 사용합니다.
-	int note_z = 0; //노트 Z키에 해당되는 노트 1입니다.
-	int note_x = 0;
-	int note_c = 0;
-	int note_v = 0;
-	int good = 0, perfect = 0; // 판정처리
-	int hit = 0; //good이든 perfect든 판정범위 내에 인식한 노트 수 입니다.
-	int recover_groove_good = 0; // 그루브게이지를 회복하기 위한 조건
-	int recover_groove_perfect = 0; //그루브게이지를 회복하기 위한 조건
-	int miss = 0; //게임오버를 좌지우지하는 변수
-	int if_z_press = 0;
-	int if_x_press = 0;
-	int if_c_press = 0;
-	int if_v_press = 0;//아무키도 누르지않았을경우 Miss처리
+	short i, j; //for문을 위해 사용합니다.
+	short note_z = 0; //노트 Z키에 해당되는 노트 1입니다.
+	short note_x = 0;
+	short note_c = 0;
+	short note_v = 0;
+	short good = 0, perfect = 0; // 판정처리
+	short hit = 0; //good이든 perfect든 판정범위 내에 인식한 노트 수 입니다.
+	short recover_groove_good = 0; // 그루브게이지를 회복하기 위한 조건
+	short recover_groove_perfect = 0; //그루브게이지를 회복하기 위한 조건
+	short miss = 0; //게임오버를 좌지우지하는 변수
+	short if_z_press = 0;
+	short if_x_press = 0;
+	short if_c_press = 0;
+	short if_v_press = 0;//아무키도 누르지않았을경우 Miss처리
 
 
 	memset(tutorial_note, 48, sizeof(char) * 24 * 25);
 	memset(groove_gauge, 42, sizeof(char) * 15 * 2);
-	//	
+
 	while (1)
 	{
 		gotoxy(0, 0);
@@ -1162,7 +1259,7 @@ void title_1()
 }
 void title_2()
 {
-	int sec = 1;
+	short sec = 1;
 
 
 	gotoxy(20, 3); SetColor(13); Sleep(sec * 100);
@@ -1226,12 +1323,12 @@ void square_circulation() //타이틀화면에서 움직이는 애니메이션, 
 {
 	char circulation[10][10];
 	char insert_coin;
-	int a, b; // for문 변수
-	int current_y;
-	int A = 0, B = 0, C = 9, D = 9;
-	int ready_to_play = 0;
-	int current_credit = 0;
-	int required_credit = 3;
+	short a, b; // for문 변수
+	short current_y;
+	short A = 0, B = 0, C = 9, D = 9;
+	short ready_to_play = 0;
+	short current_credit = 0;
+	short required_credit = 3;
 
 
 
@@ -1335,7 +1432,7 @@ void square_circulation() //타이틀화면에서 움직이는 애니메이션, 
 		Sleep(100);
 
 		gotoxy(40, 27);
-		printf("<CREDIT(S) %d  %d/%d>\n", ready_to_play, current_credit, required_credit);
+		printf("<CREDIT(S) %hd  %hd/%hd>\n", ready_to_play, current_credit, required_credit);
 		insert_coin = 10;
 	}
 }
@@ -1371,7 +1468,7 @@ void title_3()
 }
 void title_to_tutorial() // 타이틀에서 튜토리얼로 가기 전 나오는 그림
 {
-	int second = 1;
+	short second = 1;
 
 	gotoxy(20, 3); SetColor(13); Sleep(second * 100);
 	printf("■■■■■■■");
@@ -1461,9 +1558,9 @@ void tutorial_to_select_music()
 	delete_line(41, 13);
 	delete_line(38, 14);
 }
-void groove_gauge_set(char groove_gauge[][2], int miss)
+void groove_gauge_set(char groove_gauge[][2], short miss)
 {
-	int i;
+	short i;
 
 	if (miss >= 0)
 	{
@@ -1491,7 +1588,7 @@ void groove_gauge_set(char groove_gauge[][2], int miss)
 void print_groove_gauge(char groove_gauge[][2])
 {
 
-	int i, j;
+	short i, j;
 
 
 
@@ -1513,7 +1610,7 @@ void print_groove_gauge(char groove_gauge[][2])
 		printf("\n");
 	}
 }
-int press_z_key(int judgement)
+short press_z_key(short judgement)
 {
 	if ((GetAsyncKeyState(0x5A) & 0x8000) && judgement == 1)
 	{
@@ -1527,7 +1624,7 @@ int press_z_key(int judgement)
 
 	return 0;
 }
-int press_x_key(int judgement)
+short press_x_key(short judgement)
 {
 	if ((GetAsyncKeyState(0x58) & 0x8000) && judgement == 1)
 	{
@@ -1541,7 +1638,7 @@ int press_x_key(int judgement)
 
 	return 0;
 }
-int press_c_key(int judgement)
+short press_c_key(short judgement)
 {
 	if ((GetAsyncKeyState(0x43) & 0x8000) && judgement == 1)
 	{
@@ -1555,7 +1652,7 @@ int press_c_key(int judgement)
 
 	return 0;
 }
-int press_v_key(int judgement)
+short press_v_key(short judgement)
 {
 	if ((GetAsyncKeyState(0x56) & 0x8000) && judgement == 1)
 	{
@@ -1602,60 +1699,194 @@ void basic_pad()
 	gotoxy(X1, 28); printf("┃    ┃    ┃    ┃    ┃\n");
 	gotoxy(X1, 29); printf("┃    ┃    ┃    ┃    ┃\n");
 }
-void note(int x1, int i)
+
+void score(short good, short perfect, short total_miss, short recover_groove_good, short recover_groove_perfect)
+{
+	gotoxy(70, 22); printf("recover_good %02hd", recover_groove_good);
+	gotoxy(70, 23); printf("recover_perfect %02hd", recover_groove_perfect);
+	gotoxy(70, 24); printf("MISS %02hd", total_miss);
+	gotoxy(70, 25); printf("GOOD %02hd", good);
+	gotoxy(70, 26); printf("Perfect %02hd", perfect);
+
+}
+void result_score(short good, short perfect, short total_miss, short recover_groove_good, short recover_groove_perfect)
+{
+	gotoxy(40, 22); printf("recover_good %02hd", recover_groove_good);
+	gotoxy(40, 23); printf("recover_perfect %02hd", recover_groove_perfect);
+	gotoxy(40, 24); printf("MISS %02hd", total_miss);
+	gotoxy(40, 25); printf("GOOD %02hd", good);
+	gotoxy(40, 26); printf("Perfect %02hd", perfect);
+}
+void note(short x1, short i)
 {
 	gotoxy(x1, i); printf("@@@@");
 }
-void note_delete(int x1, int i)
+void note_delete(short x1, short i)
 {
 	gotoxy(x1, i); printf("    ");
 }
-void score(int good, int perfect, int total_miss, int recover_groove_good, int recover_groove_perfect)
-{
-	gotoxy(70, 22); printf("recover_good %02d", recover_groove_good);
-	gotoxy(70, 23); printf("recover_perfect %02d", recover_groove_perfect);
-	gotoxy(70, 24); printf("MISS %02d", total_miss);
-	gotoxy(70, 25); printf("GOOD %02d", good);
-	gotoxy(70, 26); printf("Perfect %02d", perfect);
-
-}
-void result_score(int good, int perfect, int total_miss, int recover_groove_good, int recover_groove_perfect)
-{
-	gotoxy(40, 22); printf("recover_good %02d", recover_groove_good);
-	gotoxy(40, 23); printf("recover_perfect %02d", recover_groove_perfect);
-	gotoxy(40, 24); printf("MISS %02d", total_miss);
-	gotoxy(40, 25); printf("GOOD %02d", good);
-	gotoxy(40, 26); printf("Perfect %02d", perfect);
-}
-void note_first(int note_available, char key, int time)
+void note_first(short note_available, char key, short time)
 {
 	if (note_available == 1)
 	{
 		note(key, time);
 	}
 }
-void note_advance(int note_available, char key, int time, int time1)
+void note_advance(bool note_available, char key, short time, short time1)
 {
-	if (note_available == 1 && time >= time1)
+	if (note_available == true && time >= time1)
 	{
 		note(key, time - time1);
 	}
 }
-void Music_1_Note()
+int Note_From_Get_KeyValue(int value)
 {
+	switch (value)
+	{
+	case 0:		return 0; break;
+	case 1:		return 1; break;
+	case 10:	return 2; break;
+	case 100:	return 3; break;
+	case 1000:	return 4; break;
+	default:	return 5; 
+	}
+}
+short z_key_press(short good, short perfect)
+{
+	if ((GetAsyncKeyState(0x5A) & 0x8000) && good == 1)
+	{
+		return 1;
+	}
+
+	if ((GetAsyncKeyState(0x5A) & 0x8000) && perfect == 1)
+	{
+		return 2;
+	}
+
+	return 0;
+}
+short x_key_press(short good, short perfect)
+{
+	if ((GetAsyncKeyState(0x58) & 0x8000) && good == 2)
+	{
+		return 1;
+	}
+
+	if ((GetAsyncKeyState(0x58) & 0x8000) && perfect == 2)
+	{
+		return 2;
+	}
+
+	return 0;
+}
+short c_key_press(short good, short perfect)
+{
+	if ((GetAsyncKeyState(0x43) & 0x8000) && good == 3)
+	{
+		return 1;
+	}
+
+	if ((GetAsyncKeyState(0x43) & 0x8000) && perfect == 3)
+	{
+		return 2;
+	}
+
+	return 0;
+}
+short v_key_press(short good, short perfect)
+{
+	if ((GetAsyncKeyState(0x56) & 0x8000) && good == 4)
+	{
+		return 1;
+	}
+
+	if ((GetAsyncKeyState(0x56) & 0x8000) && perfect == 4)
+	{
+		return 2;
+	}
+
+	return 0;
+}
+short zxcv_key_press(short good, short perfect)
+{
+	if ((GetAsyncKeyState(0x5A) & 0x8000) && good == 1)
+	{
+		return 1;
+	}
+
+	if ((GetAsyncKeyState(0x5A) & 0x8000) && perfect == 1)
+	{
+		return 2;
+	}
+
+	if ((GetAsyncKeyState(0x58) & 0x8000) && good == 2)
+	{
+		return 3;
+	}
+
+	if ((GetAsyncKeyState(0x58) & 0x8000) && perfect == 2)
+	{
+		return 4;
+	}
+
+	if ((GetAsyncKeyState(0x43) & 0x8000) && good == 3)
+	{
+		return 5;
+	}
+
+	if ((GetAsyncKeyState(0x43) & 0x8000) && perfect == 3)
+	{
+		return 6;
+	}
+
+	if ((GetAsyncKeyState(0x56) & 0x8000) && good == 4)
+	{
+		return 7;
+	}
+
+	if ((GetAsyncKeyState(0x56) & 0x8000) && perfect == 4)
+	{
+		return 8;
+	}
+
+	if (good == 0 || perfect == 0)
+	{
+		return 9;
+	}
+
+	return 10;
+}
+void Music_1_Note() // 현재 개발중인 새로운 방식의 노트 처리 , 메모장 저장할때 UTF-8이 아닌 ANSI.
+{
+	//노트판정
+	//체력회복 등 전부
+	//
+	//노트 조정
+	//랜덤 구현
+
 	char groove_gauge[15][2];
-	int z_1 = 1, z_2 = 1, z_3 = 1, z_4 = 1, z_5 = 1, z_6 = 1, z_7 = 1, z_8 = 1;
-	int x_1 = 1, x_2 = 1, x_3 = 1, x_4 = 1, x_5 = 1, x_6 = 1, x_7 = 1, x_8 = 1;
-	int c_1 = 1, c_2 = 1, c_3 = 1, c_4 = 1, c_5 = 1, c_6 = 1, c_7 = 1, c_8 = 1;
-	int v_1 = 1, v_2 = 1, v_3 = 1, v_4 = 1, v_5 = 1, v_6 = 1, v_7 = 1, v_8 = 1;
-	int judge = 0;
-	int good = 0, perfect = 0, miss = 0, total_miss = 0;
-	int recover_groove_good = 0; // 그루브게이지를 회복하기 위한 조건
-	int recover_groove_perfect = 0; //그루브게이지를 회복하기 위한 조건
-	int start_music = 1;
-	int note_time = 0;
-	int game_over_pass_key = 0;
+	short good = 0, perfect = 0, miss = 0, total_miss = 0;
+	short recover_groove_good = 0; // 그루브게이지를 회복하기 위한 조건
+	short recover_groove_perfect = 0; //그루브게이지를 회복하기 위한 조건
+	short note_time = 0;
+	short game_over_pass_key = 0;
+
+	vector<string>::iterator it;
+	vector<string>::iterator it1;
+
+	string note_only;
+	string note_and_key;
+	string get_string_key_value_from_note;
 	
+	int perfect_key_value = 0;
+	int good_key_value = 0;
+
+
+	Load_Music_1_Note();
+	
+	it1 = Note1.begin();
+	//vector Note1
+
 
 	memset(groove_gauge, 42, sizeof(char) * 15 * 2);
 
@@ -1663,10 +1894,14 @@ void Music_1_Note()
 	good = 0, perfect = 0, miss = 0, total_miss = 0;
 	recover_groove_good = 0;
 	recover_groove_perfect = 0;
-
+	int i = 0;
 	while (1)
 	{
-		//23->24
+		if (it1 == Note1.end())
+		{
+			break;
+		}
+
 		if (note_time == 24)
 		{
 
@@ -1686,12 +1921,182 @@ void Music_1_Note()
 			recover_groove_perfect = 0;
 		}
 
+		if (GetAsyncKeyState(VK_F4) & 0x8000)
+		{
+			Speed = Speed + 0.25;
+		}
+		if (GetAsyncKeyState(VK_F3) & 0x8000)
+		{
+			Speed = Speed - 0.25;
+		}
+
+
+		gotoxy(0, 3); printf("Speed : %.2f", Speed);
+		groove_gauge_set(groove_gauge, miss);
+		print_groove_gauge(groove_gauge);
+		it = Note1.begin();
+		for (int j = i; j >=0; j--)
+		{
+			if (it1 < it)
+			{
+
+			}
+			else
+			{
+				if (j == 21) //노트가 판정선보다 한칸 위에 있을때 --- good
+				{
+					note_and_key = *it;
+					note_only = note_and_key.substr(0, 24);
+					get_string_key_value_from_note = note_and_key.substr(note_and_key.length()-4, 4);
+					good_key_value = Note_From_Get_KeyValue(stoi(get_string_key_value_from_note));
+					gotoxy(z, j); cout << note_only;
+					++it;
+				}
+				else if (j == 22) //노트가 판정선에 정확히 닿았을때 --- perfect
+				{
+					//gotoxy(z, j); cout << *it;
+					note_and_key = *it;
+					note_only = note_and_key.substr(0, 24);
+					get_string_key_value_from_note = note_and_key.substr(note_and_key.length() - 4, 4);
+					perfect_key_value = Note_From_Get_KeyValue(stoi(get_string_key_value_from_note));
+					gotoxy(z, j); cout << note_only;
+					++it;
+				}
+				else if (j > 23) //상황에 따라 24로 변경 예정
+				{
+					++it;
+					//gotoxy(z, 0); cout << "    ┃    ┃    ┃    ┃";
+				}
+				else
+				{
+					note_and_key = *it;
+					note_only = note_and_key.substr(0, 24);
+					gotoxy(z, j); cout << note_only;
+					++it;
+				}
+			}
+		}
+		++i;
+		//Sleep(Music_1_BPM/Speed);
+		Sleep(500); //테스트용 임시로 스피드 고정
+		++it1;
+		note_time++;
+
+		if (good_key_value > 0 || perfect_key_value > 0)
+		{
+			switch (zxcv_key_press(good_key_value, perfect_key_value))
+			{
+			case 1:good++; recover_groove_good++; good_key_value = 0; miss--; break;
+			case 2:perfect++; recover_groove_perfect++; perfect_key_value = 0; miss--; break;
+			case 3:good++; recover_groove_good++; good_key_value = 0; miss--; break;
+			case 4:perfect++; recover_groove_perfect++; perfect_key_value = 0; miss--; break;
+			case 5:good++; recover_groove_good++; good_key_value = 0; miss--; break;
+			case 6:perfect++; recover_groove_perfect++; perfect_key_value = 0; miss--; break;
+			case 7:good++; recover_groove_good++; good_key_value = 0; miss--; break;
+			case 8:perfect++; recover_groove_perfect++; perfect_key_value = 0; miss--; break;
+			case 9:break;
+			default: miss++; total_miss++; recover_groove_good = 0; recover_groove_perfect = 0;
+			}
+		}
+
+		
+
+		/*
+		
+		switch (good_key_value)
+		{
+		case 1:gotoxy(0, 5); printf("V"); break;
+		case 2:gotoxy(0, 5); printf("C"); break;
+		case 3:gotoxy(0, 5); printf("X"); break;
+		case 4:gotoxy(0, 5); printf("Z"); break;
+		}
+		switch (perfect_key_value)
+		{
+		case 1:gotoxy(0, 5); printf("V"); break;
+		case 2:gotoxy(0, 5); printf("C"); break;
+		case 3:gotoxy(0, 5); printf("X"); break;
+		case 4:gotoxy(0, 5); printf("Z"); break;
+		}
+		*/
+		
+		score(good, perfect, total_miss, recover_groove_good, recover_groove_perfect);
+		if (miss == 15)
+		{
+			system("cls");
+			PlaySound(TEXT("gameover.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP | SND_NODEFAULT);
+			while (1)
+			{
+				gotoxy(45, 14); printf("ＧＡＭＥ ＯＶＥＲ");
+				Sleep(100);
+
+				if (_kbhit())
+				{
+					game_over_pass_key = _getch();
+					if (game_over_pass_key == Enter)
+					{
+						PlaySound(NULL, 0, 0);
+						break;
+					}
+				}
+			}
+		}
+
+
+	}
+}
+/*
+void Music_1_Note()
+{
+	char groove_gauge[15][2];
+	bool z_1 = 1, z_2 = 1, z_3 = 1, z_4 = 1, z_5 = 1, z_6 = 1, z_7 = 1, z_8 = 1;
+	bool x_1 = 1, x_2 = 1, x_3 = 1, x_4 = 1, x_5 = 1, x_6 = 1, x_7 = 1, x_8 = 1;
+	bool c_1 = 1, c_2 = 1, c_3 = 1, c_4 = 1, c_5 = 1, c_6 = 1, c_7 = 1, c_8 = 1;
+	bool v_1 = 1, v_2 = 1, v_3 = 1, v_4 = 1, v_5 = 1, v_6 = 1, v_7 = 1, v_8 = 1;
+	short judge = 0;
+	short good = 0, perfect = 0, miss = 0, total_miss = 0;
+	short recover_groove_good = 0; // 그루브게이지를 회복하기 위한 조건
+	short recover_groove_perfect = 0; //그루브게이지를 회복하기 위한 조건
+	short note_time = 0;
+	short game_over_pass_key = 0;
+	
+
+	memset(groove_gauge, 42, sizeof(char) * 15 * 2);
+
+	basic_pad();
+	good = 0, perfect = 0, miss = 0, total_miss = 0;
+	recover_groove_good = 0;
+	recover_groove_perfect = 0;
+
+	
+	while (1)
+	{
+		//version 1.0.2 23->24
+		if (note_time == 24)
+		{
+
+			PlaySound(TEXT("Music1.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP | SND_NODEFAULT);
+
+		}
+		
+		if ((groove_gauge[0][0] != 42) && recover_groove_good == 4)
+		{
+			miss--;
+			recover_groove_good = 0;
+		}
+
+		if ((groove_gauge[0][0] != 42) && recover_groove_perfect == 2)
+		{
+			miss--;
+			recover_groove_perfect = 0;
+		}
+
 
 
 
 		groove_gauge_set(groove_gauge, miss);
 		print_groove_gauge(groove_gauge);
-
+		
+		
 		note_first(z_1, z, note_time);
 		note_advance(c_1, c, note_time, 6);
 		note_advance(v_1, v, note_time, 10);
@@ -2462,7 +2867,7 @@ void Music_1_Note()
 		note_time++;
 
 
-		//      miss의 처리
+		//miss의 처리
 
 
 		if ((note_time == 23 + Fix_Note) && z_1 == 1)
@@ -2750,23 +3155,23 @@ void Music_1_Note()
 		music_score = perfect * 300 + good * 100;
 		draw_bitmap = true;
 	}
-
+	
 
 }
+*/
 void Music_2_Note()
 {
 	char groove_gauge[15][2];
-	int z_1 = 1, z_2 = 1, z_3 = 1, z_4 = 1, z_5 = 1, z_6 = 1, z_7 = 1, z_8 = 1;
-	int x_1 = 1, x_2 = 1, x_3 = 1, x_4 = 1, x_5 = 1, x_6 = 1, x_7 = 1, x_8 = 1;
-	int c_1 = 1, c_2 = 1, c_3 = 1, c_4 = 1, c_5 = 1, c_6 = 1, c_7 = 1, c_8 = 1;
-	int v_1 = 1, v_2 = 1, v_3 = 1, v_4 = 1, v_5 = 1, v_6 = 1, v_7 = 1, v_8 = 1;
-	int judge = 0;
-	int good = 0, perfect = 0, miss = 0, total_miss = 0;
-	int recover_groove_good = 0; // 그루브게이지를 회복하기 위한 조건
-	int recover_groove_perfect = 0; //그루브게이지를 회복하기 위한 조건
-	int start_music = 1;
-	int note_time = 0;
-	int game_over_pass_key = 0;
+	bool z_1 = 1, z_2 = 1, z_3 = 1, z_4 = 1, z_5 = 1, z_6 = 1, z_7 = 1, z_8 = 1;
+	bool x_1 = 1, x_2 = 1, x_3 = 1, x_4 = 1, x_5 = 1, x_6 = 1, x_7 = 1, x_8 = 1;
+	bool c_1 = 1, c_2 = 1, c_3 = 1, c_4 = 1, c_5 = 1, c_6 = 1, c_7 = 1, c_8 = 1;
+	bool v_1 = 1, v_2 = 1, v_3 = 1, v_4 = 1, v_5 = 1, v_6 = 1, v_7 = 1, v_8 = 1;
+	short judge = 0;
+	short good = 0, perfect = 0, miss = 0, total_miss = 0;
+	short recover_groove_good = 0; // 그루브게이지를 회복하기 위한 조건
+	short recover_groove_perfect = 0; //그루브게이지를 회복하기 위한 조건
+	short note_time = 0;
+	short game_over_pass_key = 0;
 
 
 	memset(groove_gauge, 42, sizeof(char) * 15 * 2);
@@ -3410,17 +3815,16 @@ void Music_2_Note()
 void Music_3_Note()
 {
 	char groove_gauge[15][2];
-	int z_1 = 1, z_2 = 1, z_3 = 1, z_4 = 1, z_5 = 1, z_6 = 1, z_7 = 1, z_8 = 1, z_9 = 1, z_10 = 1, z_11 = 1, z_12 = 1;
-	int x_1 = 1, x_2 = 1, x_3 = 1, x_4 = 1, x_5 = 1, x_6 = 1, x_7 = 1, x_8 = 1, x_9 = 1, x_10 = 1, x_11 = 1, x_12 = 1;
-	int c_1 = 1, c_2 = 1, c_3 = 1, c_4 = 1, c_5 = 1, c_6 = 1, c_7 = 1, c_8 = 1, c_9 = 1, c_10 = 1, c_11 = 1, c_12 = 1;
-	int v_1 = 1, v_2 = 1, v_3 = 1, v_4 = 1, v_5 = 1, v_6 = 1, v_7 = 1, v_8 = 1, v_9 = 1, v_10 = 1, v_11 = 1, v_12 = 1;
-	int judge = 0;
-	int good = 0, perfect = 0, miss = 0, total_miss = 0;
-	int recover_groove_good = 0; // 그루브게이지를 회복하기 위한 조건
-	int recover_groove_perfect = 0; //그루브게이지를 회복하기 위한 조건
-	int start_music = 1;
-	int note_time = 0;
-	int game_over_pass_key = 0;
+	bool z_1 = 1, z_2 = 1, z_3 = 1, z_4 = 1, z_5 = 1, z_6 = 1, z_7 = 1, z_8 = 1, z_9 = 1, z_10 = 1, z_11 = 1, z_12 = 1;
+	bool x_1 = 1, x_2 = 1, x_3 = 1, x_4 = 1, x_5 = 1, x_6 = 1, x_7 = 1, x_8 = 1, x_9 = 1, x_10 = 1, x_11 = 1, x_12 = 1;
+	bool c_1 = 1, c_2 = 1, c_3 = 1, c_4 = 1, c_5 = 1, c_6 = 1, c_7 = 1, c_8 = 1, c_9 = 1, c_10 = 1, c_11 = 1, c_12 = 1;
+	bool v_1 = 1, v_2 = 1, v_3 = 1, v_4 = 1, v_5 = 1, v_6 = 1, v_7 = 1, v_8 = 1, v_9 = 1, v_10 = 1, v_11 = 1, v_12 = 1;
+	short judge = 0;
+	short good = 0, perfect = 0, miss = 0, total_miss = 0;
+	short recover_groove_good = 0; // 그루브게이지를 회복하기 위한 조건
+	short recover_groove_perfect = 0; //그루브게이지를 회복하기 위한 조건
+	short note_time = 0;
+	short game_over_pass_key = 0;
 
 
 
@@ -5286,6 +5690,7 @@ void Music_3_Note()
 		draw_bitmap = true;
 	}
 }
+
 void Music_1(int music_score, int music)
 {
 	int p_0, p_1, p_2, p_3, p_4, p_5, p_6, p_7, p_8, p_9, p_10, p_11, p_12, p_13, p_14;
