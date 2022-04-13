@@ -1739,18 +1739,6 @@ void note_advance(bool note_available, char key, short time, short time1)
 		note(key, time - time1);
 	}
 }
-int Note_From_Get_KeyValue(int value)
-{
-	switch (value)
-	{
-	case 0:		return 0; break;
-	case 1:		return 1; break;
-	case 10:	return 2; break;
-	case 100:	return 3; break;
-	case 1000:	return 4; break;
-	default:	return 5; 
-	}
-}
 short z_key_press(short good, short perfect)
 {
 	if ((GetAsyncKeyState(0x5A) & 0x8000) && good == 1)
@@ -1806,6 +1794,18 @@ short v_key_press(short good, short perfect)
 	}
 
 	return 0;
+}
+int Note_From_Get_KeyValue(int value)
+{
+	switch (value)
+	{
+	case 0:		return 0; break;
+	case 1:		return 1; break;
+	case 10:	return 2; break;
+	case 100:	return 3; break;
+	case 1000:	return 4; break;
+	default:	return 5;
+	}
 }
 short zxcv_key_press(short good, short perfect)
 {
@@ -1870,6 +1870,8 @@ void Music_1_Note() // 현재 개발중인 새로운 방식의 노트 처리 , �
 	short recover_groove_perfect = 0; //그루브게이지를 회복하기 위한 조건
 	short note_time = 0;
 	short game_over_pass_key = 0;
+	short judgement = 0;
+	bool is_exist = true;
 
 	vector<string>::iterator it;
 	vector<string>::iterator it1;
@@ -1943,7 +1945,7 @@ void Music_1_Note() // 현재 개발중인 새로운 방식의 노트 처리 , �
 			}
 			else
 			{
-				if (j == 21) //노트가 판정선보다 한칸 위에 있을때 --- good
+				if (j == 22) //노트가 판정선보다 한칸 위에 있을때 //21
 				{
 					note_and_key = *it;
 					note_only = note_and_key.substr(0, 24);
@@ -1952,7 +1954,7 @@ void Music_1_Note() // 현재 개발중인 새로운 방식의 노트 처리 , �
 					gotoxy(z, j); cout << note_only;
 					++it;
 				}
-				else if (j == 22) //노트가 판정선에 정확히 닿았을때 --- perfect
+				else if (j == 23) //노트가 판정선에 정확히 닿았을때 //22
 				{
 					//gotoxy(z, j); cout << *it;
 					note_and_key = *it;
@@ -1962,7 +1964,7 @@ void Music_1_Note() // 현재 개발중인 새로운 방식의 노트 처리 , �
 					gotoxy(z, j); cout << note_only;
 					++it;
 				}
-				else if (j > 23) //상황에 따라 24로 변경 예정
+				else if (j > 24) //상황에 따라 24로 변경 예정 //23
 				{
 					++it;
 					//gotoxy(z, 0); cout << "    ┃    ┃    ┃    ┃";
@@ -1977,32 +1979,161 @@ void Music_1_Note() // 현재 개발중인 새로운 방식의 노트 처리 , �
 			}
 		}
 		++i;
-		//Sleep(Music_1_BPM/Speed);
-		Sleep(500); //테스트용 임시로 스피드 고정
+		Sleep(Music_1_BPM/Speed);
+
 		++it1;
 		note_time++;
 
+		if (good_key_value == 1)
+		{
+			judgement = 1;
+			if (press_v_key(judgement) == 1)
+			{
+				gotoxy(0, 5); printf("V");
+				good++;
+				recover_groove_good++;
+				is_exist = false;
+			}
+			judgement = 0;
+		}
+
+		if (perfect_key_value == 1)
+		{
+			judgement = 2;
+			if (press_v_key(judgement) == 2 && is_exist)
+			{
+				gotoxy(0, 5); printf("V");
+				perfect++;
+				recover_groove_perfect++;
+			}
+			else 
+			{
+				miss++;
+				total_miss++;
+				recover_groove_perfect = 0;
+				recover_groove_good = 0;
+			}
+			judgement = 0;
+		}
+
+
+		if (good_key_value == 2)
+		{
+			judgement = 1;
+			if (press_c_key(judgement) == 1)
+			{
+				gotoxy(0, 5); printf("C");
+				good++;
+				recover_groove_good++;
+				is_exist = false;
+			}
+			judgement = 0;
+		}
+
+		if (perfect_key_value == 2)
+		{
+			judgement = 2;
+			if (press_c_key(judgement) == 2 && is_exist)
+			{
+				gotoxy(0, 5); printf("C");
+				perfect++;
+				recover_groove_perfect++;
+			}
+			else 
+			{
+				miss++;
+				total_miss++;
+				recover_groove_perfect = 0;
+				recover_groove_good = 0;
+			}
+			judgement = 0;
+		}
+		
+		if (good_key_value == 3)
+		{
+			judgement = 1;
+			if (press_x_key(judgement) == 1)
+			{
+				gotoxy(0, 5); printf("X");
+				good++;
+				recover_groove_good++;
+				is_exist = false;
+			}
+			judgement = 0;
+		}
+
+		if (perfect_key_value == 3)
+		{
+			judgement = 2;
+			if (press_x_key(judgement) == 2 && is_exist)
+			{
+				gotoxy(0, 5); printf("X");
+				perfect++;
+				recover_groove_perfect++;
+			}
+			else 
+			{
+				miss++;
+				total_miss++;
+				recover_groove_perfect = 0;
+				recover_groove_good = 0;
+			}
+			judgement = 0;
+		}
+		
+		if (good_key_value == 4)
+		{
+			judgement = 1;
+			if (press_z_key(judgement) == 1)
+			{
+				gotoxy(0, 5); printf("Z");
+				good++;
+				recover_groove_good++;
+				is_exist = false;
+			}
+			judgement = 0;
+		}
+
+		if (perfect_key_value == 4) //Z
+		{
+			judgement = 2;
+			if (press_z_key(judgement) == 2 && is_exist)
+			{
+				gotoxy(0, 5); printf("Z");
+				perfect++;
+				recover_groove_perfect++;
+			}
+			else 
+			{
+				miss++;
+				total_miss++;
+				recover_groove_perfect = 0;
+				recover_groove_good = 0;
+			}
+			judgement = 0;
+		}
+
+
+		
+		
+		/*
 		if (good_key_value > 0 || perfect_key_value > 0)
 		{
 			switch (zxcv_key_press(good_key_value, perfect_key_value))
 			{
-			case 1:good++; recover_groove_good++; good_key_value = 0; miss--; break;
-			case 2:perfect++; recover_groove_perfect++; perfect_key_value = 0; miss--; break;
-			case 3:good++; recover_groove_good++; good_key_value = 0; miss--; break;
-			case 4:perfect++; recover_groove_perfect++; perfect_key_value = 0; miss--; break;
-			case 5:good++; recover_groove_good++; good_key_value = 0; miss--; break;
-			case 6:perfect++; recover_groove_perfect++; perfect_key_value = 0; miss--; break;
-			case 7:good++; recover_groove_good++; good_key_value = 0; miss--; break;
-			case 8:perfect++; recover_groove_perfect++; perfect_key_value = 0; miss--; break;
+			case 1:good++; recover_groove_good++; good_key_value = 0; perfect_key_value = 0; miss--; break;
+			case 2:perfect++; recover_groove_perfect++; good_key_value = 0; perfect_key_value = 0; miss--; break;
+			case 3:good++; recover_groove_good++; good_key_value = 0; perfect_key_value = 0; miss--; break;
+			case 4:perfect++; recover_groove_perfect++; good_key_value = 0; perfect_key_value = 0; miss--; break;
+			case 5:good++; recover_groove_good++; good_key_value = 0; perfect_key_value = 0; miss--; break;
+			case 6:perfect++; recover_groove_perfect++; good_key_value = 0; perfect_key_value = 0; miss--; break;
+			case 7:good++; recover_groove_good++; good_key_value = 0; perfect_key_value = 0; miss--; break;
+			case 8:perfect++; recover_groove_perfect++; good_key_value = 0; perfect_key_value = 0; miss--; break;
 			case 9:break;
 			default: miss++; total_miss++; recover_groove_good = 0; recover_groove_perfect = 0;
 			}
 		}
 
-		
-
-		/*
-		
 		switch (good_key_value)
 		{
 		case 1:gotoxy(0, 5); printf("V"); break;
@@ -2010,6 +2141,8 @@ void Music_1_Note() // 현재 개발중인 새로운 방식의 노트 처리 , �
 		case 3:gotoxy(0, 5); printf("X"); break;
 		case 4:gotoxy(0, 5); printf("Z"); break;
 		}
+
+
 		switch (perfect_key_value)
 		{
 		case 1:gotoxy(0, 5); printf("V"); break;
@@ -2017,7 +2150,35 @@ void Music_1_Note() // 현재 개발중인 새로운 방식의 노트 처리 , �
 		case 3:gotoxy(0, 5); printf("X"); break;
 		case 4:gotoxy(0, 5); printf("Z"); break;
 		}
+
+
+
+		if (good_key_value == 1)
+		{
+
+		}
+		else if (good_key_value == 2)
+		{
+
+		}
+		else if (good_key_value == 3)
+		{
+
+		}
+		else if (good_key_value == 4) //Z
+		{
+
+		}
+
+
 		*/
+		
+
+		
+		
+	
+		
+		
 		
 		score(good, perfect, total_miss, recover_groove_good, recover_groove_perfect);
 		if (miss == 15)
